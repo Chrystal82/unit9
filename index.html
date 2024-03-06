@@ -3,246 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Unit 9</title>
 </head>
 <body>
 <script>
-    
-    class scoreKeeper
-{   
-    constructor (n)
-{
-    this.gamePlayed = n;
-    this.players = [];
-}
 
-setGame(name)
-{
-    this.gamePlayed = name;
-}
+class scoreKeeper {
+  #gamePlayed; // Private property to hold the name of the game
+  #players; // Private property to hold the players' names and scores
 
-getGame()
-{
-    return this.gamePlayed;
-}
+  constructor(gameName = "") {
+    this.#gamePlayed = gameName;
+    this.#players = {};
+  }
 
-addName(n)
-{
-    this.players.push({}); 
+  setGame(gameName) {
+    this.#gamePlayed = gameName;
+  }
 
-length
-    this.players[this.players.length-1].name = n;
-    
-    this.players[this.players.length-1].score = 0;
-}
+  getGame() {
+    return this.#gamePlayed;
+  }
 
-getPlayerName(playerNum)
-{
-    return this.players[playerNum - 1].name;
-}
-
-addScore(player, points)
-{
-    var temp = -999;
-    for (var i=0; i < this.players.length; i++)
-{
-    if (this.players[i].name == player)
-    {
-        this.players[i].score += points;
-        temp = this.players[i].score;
-        break;
+  addName(playerName) {
+    if (!(playerName in this.#players)) {
+      this.#players[playerName] = 0;
     }
-}
+  }
 
-return temp;
-}
-    subScore(player, points)
-{
-    var temp = -999;
-    for (var i=0; i < this.players.length; i++)
-{
-    if (this.players[i].name == player)
-    {
-        this.players[i].score -= points;
-        temp = this.players[i].score;
-        break;
+  getPlayerName(playerNumber) {
+    const playerNames = Object.keys(this.#players);
+    return playerNames[playerNumber] || null;
+  }
+
+  addScore(playerName, points) {
+    if (playerName in this.#players) {
+      this.#players[playerName] += points;
+      return this.#players[playerName];
     }
-}
+    return null;
+  }
 
-return temp;
-}
-
-getScore(player)
-{
-    var temp = -999;
-    for (var i=0; i < this.players.length; i++)
-    {
-        if (this.players[i].name == player)
-        {
-            temp = this.players[i].score;
-            break;
-        }
+  subScore(playerName, points) {
+    if (playerName in this.#players) {
+      this.#players[playerName] -= points;
+      return this.#players[playerName];
     }
+    return null;
+  }
 
-return temp;
-}
-
-listAllScores()
-{
-    console.log("The scores for " + this.gamePlayed + ": ");
-    for (var i=0; i < this.players.length; i++)
-    {
-        console.log(this.players[i].name + "'s score is " + this.players[i].score);
+  listAllScores() {
+    console.log(`Game: ${this.#gamePlayed}`);
+    for (const [playerName, score] of Object.entries(this.#players)) {
+      console.log(`${playerName}: ${score}`);
     }
-}
-}
-
-//*********************************************************
-//****Assignment 10 Section 2
-//*********************************************************
-//*** Inherited class baseball which defines the functionality to handle the additional values
-//*** needed to manage a game of baseball. (innings, outs, strikes, fouls, and balls
-//*** This does not keep up with stats.
-class baseball extends scoreKeeper
-{
-    constructor(team1, team2)
-    {
-        super(team1 + " vs " + team2);
-        super.addName(team1);
-        super.addName(team2);
-        this.inning = 1;
-        this.outs = 0;
-        this.strikes = 0;
-        this.fouls = 0;
-        this.balls = 0;
+  }
 }
 
-advOuts()
-{
-    this.outs++;
-    if (this.outs >= 3)
-    {
-        this.inning = this.inning + .5;
-        this.outs = 0;
-        this.strikes = 0;
-        this.fouls = 0;
-        this.balls = 0;
+class Baseball extends scoreKeeper {
+  #fouls;
+  #balls;
+  #strikes;
+  #outs;
+  #innings;
+
+  constructor(homeTeam = "", visitingTeam = "") {
+    super(`${homeTeam} vs ${visitingTeam}`);
+    this.addName(homeTeam);
+    this.addName(visitingTeam);
+    this.#fouls = 0;
+    this.#balls = 0;
+    this.#strikes = 0;
+    this.#outs = 0;
+    this.#innings = 0;
+  }
+
+  advOuts() {
+    this.#outs++;
+    if (this.#outs >= 3) {
+      this.#outs = 0;
+      this.#balls = 0;
+      this.#strikes = 0;
+      this.#fouls = 0;
+      this.#innings += 0.5;
     }
-}
+  }
 
-advStrikes()
-{
-    this.strikes++;
-    if (this.strikes >= 3)
-    {
-        advOuts();
+  getOuts() {
+    return this.#outs;
+  }
+
+  advStrikes() {
+    this.#strikes++;
+    if (this.#strikes >= 3) {
+      this.advOuts();
     }
-}
+  }
 
-advFouls()
-{
-    this.fouls++;
-    if (this.strikes < 2)
-    {
-        this.strikes++;
+  getStrikes() {
+    return this.#strikes;
+  }
+
+  advFouls() {
+    this.#fouls++;
+    if (this.#strikes < 2) {
+      this.advStrikes();
     }
-}
+  }
 
-advBalls()
-{
-    this.balls++;
-    if (this.balls>=4)
-    {
-        this.strikes = 0;
-        this.fouls = 0;
-        this.balls = 0;
+  getFouls() {
+    return this.#fouls;
+  }
+
+  advBalls() {
+    this.#balls++;
+    if (this.#balls >= 4) {
+      this.#balls = 0;
+      this.#strikes = 0;
+      this.#fouls = 0;
     }
+  }
+
+  getBalls() {
+    return this.#balls;
+  }
+
+  getInning() {
+    return this.#innings;
+  }
 }
 
-getInning()
-{
-    return this.inning;
-}
-
-getOuts()
-{
-    return this.outs;
-}
-
-getStrikes()
-{
-    return this.strikes;
-}
-
-getFouls()
-{
-    return this.fouls;
-}
-
-getBalls()
-{
-    return this.balls;
-}
-
-}
-
-
-//*********************************************************
-//****Assignment 10 Section 3
-//*********************************************************
-//*** Testing the Base Class
-console.log("Assignment 10 - Classes and Inheritance");
-console.log(" ");
-console.log("Section 3: Base Class Results After Adding");
-console.log(" ");
-
-const gameOne = new scoreKeeper("Canasta");
-gameOne.addName("Larry");
-gameOne.addName("Moe");
-gameOne.addName("Curly");
-//test the addScore method
-gameOne.addScore("Larry", 20); //update Larry's score
-gameOne.addScore("Moe", 35); //update Moe's score
-gameOne.addScore("Curly", 45); //update Curly's score
-gameOne.listAllScores();
-console.log(" ");
-//test the subScore method
-gameOne.subScore("Moe", 15);
-gameOne.subScore("Curly", 5);
-console.log("Section 3: Base Class Results After Subtracting");
-console.log(" ");
-gameOne.listAllScores();
-console.log(" ");
-console.log(" ");
-
-
-//*********************************************************
-//****Assignment 10 Section 4
-//*********************************************************
-//*** Testing the Derived Class
-console.log("Section 4: Derived Class Results: Baseball scoring");
-console.log(" ");
-const gameTwo = new baseball("Cubs", "Braves");
-
-gameTwo.addScore("Cubs", 2);
-gameTwo.advOuts();
-gameTwo.advOuts();
-gameTwo.advOuts();
-gameTwo.addScore("Braves", 3);
-gameTwo.advOuts();
-gameTwo.advStrikes();
-gameTwo.advFouls();
-gameTwo.advFouls();
-gameTwo.advFouls();
-gameTwo.advBalls();
-//*** Print the current state of the game
-gameTwo.listAllScores();
-console.log(" ");
-console.log("The current inning is " + gameTwo.getInning());
-console.log("Outs: " + gameTwo.getOuts());
-console.log("Strikes: " + gameTwo.getStrikes());
-console.log("Fouls: " + gameTwo.getFouls());
-console.log("Balls: " + gameTwo.getBalls());
 
 </script>
 </body>
